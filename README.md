@@ -18,7 +18,7 @@ Utility Functions for Data Loading
 You can install the `bitUtils` package from GitHub using the `devtools` package:
 
 ``` r
-devtools::install_github("your_username/bitUtils")
+devtools::install_github("sens5900r/bitUtils")
 ```
 
 ## Usage
@@ -41,4 +41,4 @@ This package is licensed under the GPL-3 license.
 
 ## Contact
 
-For any questions or feedback, please contact the package maintainer at [shin.jonghwa\@modernity.or.kr](mailto:shin.jonghwa@modernity.or.kr){.email}.
+For any questions or feedback, please contact the package maintainer at [shin.jonghwa\@modernity.or.kr](mailto:shin.jonghwa@modernity.or.kr).
