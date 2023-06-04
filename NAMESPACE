@@ -2,3 +2,5 @@
 
 export(bit_csv)
 export(bit_csv_all)
+export(bit_txt)
+export(bit_txt_all)
