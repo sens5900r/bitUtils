@@ -1,0 +1,15 @@
+Package: bitUtils
+Type: Package
+Title: Utility Functions for Data Loading
+Version: 0.1.0
+Author: SHIN Jong-Hwa
+Maintainer: The package maintainer <shin.jonghwa@modernity.or.kr>
+Description: This package provides utility functions for loading and handling data.
+    It currently includes the functions for interactive selection and loading of .csv, .txt files.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports:
+    tcltk,
+    data.table
+RoxygenNote: 7.2.2
