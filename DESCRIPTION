@@ -1,7 +1,7 @@
 Package: bitUtils
 Type: Package
 Title: Utility Functions for Data Loading
-Version: 0.1.0
+Version: 0.1.1
 Author: SHIN Jong-Hwa
 Maintainer: The package maintainer <shin.jonghwa@modernity.or.kr>
 Description: This package provides utility functions for loading and handling data.
@@ -11,5 +11,6 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     tcltk,
-    data.table
+    data.table,
+    gWidgets2
 RoxygenNote: 7.2.2

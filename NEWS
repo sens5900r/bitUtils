@@ -1,0 +1,7 @@
+bitUtils 0.1.1
+
+- The `bit_cp949()` function has been added for the users of the Korean-language version of MS-Windows.
+
+bitUtils 0.1
+
+- Created `bit_csv()` and `bit_txt()` functions.
