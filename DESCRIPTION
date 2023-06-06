@@ -1,7 +1,7 @@
 Package: bitUtils
 Type: Package
 Title: Utility Functions for Data Loading
-Version: 0.1.1
+Version: 0.1.2
 Author: SHIN Jong-Hwa
 Maintainer: The package maintainer <shin.jonghwa@modernity.or.kr>
 Description: This package provides utility functions for loading and handling data.

@@ -12,6 +12,7 @@ Utility Functions for Data Loading
 -   Fast loading of data using `fread()` in `data.table`
 -   Support for loading multiple files at once with `bit_csv_all()`, `bit_txt_all()`
 -   Automatic removal of the Tk dialog box after file loading for a seamless workflow
+-   `bit_editor()`, a Tcl/Tk text editor with scripting, and file management features.
 
 ## Installation
 

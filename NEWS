@@ -1,7 +1,11 @@
+bitUtils 0.1.2
+
+- Added bit_editor() function, a Tcl/Tk text editor with scripting capabilities, load/save functionality, and a scrollbar.
+
 bitUtils 0.1.1
 
-- The `bit_cp949()` function has been added for the users of the Korean-language version of MS-Windows.
+- The bit_cp949() function has been added for the users of the Korean-language version of MS-Windows.
 
 bitUtils 0.1
 
-- Created `bit_csv()` and `bit_txt()` functions.
+- Created bit_csv() and bit_txt() functions.
