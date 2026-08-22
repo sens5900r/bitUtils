@@ -1,0 +1,8 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.git$
+^\.github$
+^\.Rcheck$
+^\.\.Rcheck$
+^bitUtils\.Rcheck$
+^bitUtils_.*\.tar\.gz$

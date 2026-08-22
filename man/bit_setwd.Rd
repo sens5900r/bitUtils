@@ -2,28 +2,27 @@
 % Please edit documentation in R/bit_setwd.R
 \name{bit_setwd}
 \alias{bit_setwd}
-\title{Set Working Directory Interactively}
+\title{Set the working directory}
 \usage{
-bit_setwd()
+bit_setwd(dir = NULL)
+}
+\arguments{
+\item{dir}{Directory path. If \code{NULL} (the default), a directory dialog is
+shown.}
 }
 \value{
-This function returns no value. It changes the working directory to the user-selected directory in-place.
+The new working directory, invisibly.
 }
 \description{
-This function provides a GUI for selecting a working directory.
-}
-\details{
-The function uses tcltk::tkchooseDirectory() to let the user choose a directory from their file system. After a directory is chosen, the function changes the working directory to the chosen directory and prints a message with the new directory and the corresponding setwd() code.
-}
-\note{
-This function requires the tcltk package.
+Choose a directory interactively, or pass one directly, then set it as the
+working directory.
 }
 \examples{
 \dontrun{
- # Run the function
- bit_setwd()
+bit_setwd()
+bit_setwd("C:/data")
 }
 }
 \seealso{
-\code{\link[base]{setwd}}
+\code{\link[base:getwd]{base::setwd()}}
 }

@@ -1,3 +1,21 @@
+bitUtils 0.2.1
+
+- Loaders accept file or directory paths, so the same functions work in scripts
+  and tests as well as with Tcl/Tk dialogs.
+- Loaded tables are returned invisibly in addition to the usual assignment.
+- Object names are sanitized with make.names(), including spaces in file names.
+- New bit_read() dispatches to bit_csv() or bit_txt() by file extension.
+- bit_cp949() converts a data frame or object name without a GUI; the chooser
+  remains available when x is omitted.
+- bit_setwd() accepts a directory path.
+- bit_csv_all() and bit_txt_all() no longer block on a message box or sleep;
+  set notify = TRUE to restore a completion dialog.
+- bit_editor() evaluates in the global environment, resizes with the window,
+  and adds Ctrl+O / Ctrl+S / Ctrl+R plus basic keyword highlighting.
+- DESCRIPTION uses Authors@R, a GitHub URL, and testthat in Suggests.
+- gWidgets2 is now suggested rather than imported, so CSV/TXT loading no
+  longer depends on it.
+
 bitUtils 0.1.2
 
 - Added bit_editor() function, a Tcl/Tk text editor with scripting capabilities, load/save functionality, and a scrollbar.

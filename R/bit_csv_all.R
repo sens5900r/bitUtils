@@ -1,35 +1,39 @@
-#' @title Load all CSV files in a directory
+#' Load all CSV files in a directory
 #'
-#' @description This function allows the user to choose a directory and loads all .csv files
-#' in that directory into separate data frames in the global environment.
+#' Choose a directory interactively, or pass one directly, and load every
+#' `.csv` file in that directory.
 #'
-#' @return NULL. This function is called for its side effect of loading data frames into the global environment.
+#' @param dir Directory path. If `NULL` (the default), a directory dialog is
+#'   shown.
+#' @inheritParams bit_csv
+#' @param notify Logical; if `TRUE` and a GUI is available, show a completion
+#'   message box. Defaults to `FALSE` so scripts are not blocked.
+#'
+#' @return A named list of data frames, or a single data frame if the directory
+#'   contains one matching file. Returned invisibly.
+#'
+#' @examples
+#' \dontrun{
+#' bit_csv_all()
+#' bit_csv_all("C:/data")
+#' }
 #'
 #' @export
-bit_csv_all <- function() {
-  directory <- tcltk::tk_choose.dir()
-  if (nzchar(directory)) {
-    files <- list.files(directory, pattern = "\\.csv$", full.names = TRUE)
-    if (length(files) > 0) {
-      for (i in seq_along(files)) {
-        file <- files[i]
-        data <- data.table::fread(file, data.table = FALSE)
-
-        # 파일 이름에서 확장자 제거
-        name <- tools::file_path_sans_ext(basename(file))
-        # 공백을 _로 대체
-        name <- gsub(" ", "_", name)
-
-        assign(name, data, envir = .GlobalEnv)
-      }
-      # 메시지 박스를 표시합니다
-      tcltk::tk_messageBox(title = gettext("Success"), message = gettext("Loading finished. The program will close soon."))
-      # 1초 동안 실행을 중단합니다
-      Sys.sleep(1)
-    } else {
-      print(gettext("No .csv files found in the directory."))
-    }
-  } else {
-    print(gettext("No directory was selected."))
-  }
+bit_csv_all <- function(dir = NULL,
+                        envir = .GlobalEnv,
+                        assign = TRUE,
+                        encoding = "unknown",
+                        quiet = FALSE,
+                        notify = FALSE,
+                        ...) {
+  bit_load_dir(
+    dir = dir,
+    pattern = "\\.csv$",
+    envir = envir,
+    do_assign = assign,
+    quiet = quiet,
+    notify = notify,
+    fread_args = list(encoding = encoding, ...),
+    label = ".csv"
+  )
 }
