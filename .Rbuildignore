@@ -1,0 +1,4 @@
+^\.cursor$
+^bitUtils\.Rproj$
+^\.Rproj\.user$
+^.*\.tar\.gz$
