@@ -2,18 +2,52 @@
 % Please edit documentation in R/bit_txt.R
 \name{bit_txt}
 \alias{bit_txt}
-\title{Load a TXT file using a dialog}
+\title{Load tab-delimited TXT files}
 \usage{
-bit_txt(file = NULL)
+bit_txt(
+  file = NULL,
+  envir = .GlobalEnv,
+  assign = TRUE,
+  encoding = "unknown",
+  quiet = FALSE,
+  sep = "\\t",
+  quote = "",
+  ...
+)
 }
 \arguments{
-\item{file}{A character string specifying the path to the TXT file to load.
-If NULL (the default), a file dialog will be shown.}
+\item{file}{Character vector of file paths. If \code{NULL} (the default), a file
+dialog is shown.}
+
+\item{envir}{Environment in which to assign the loaded data. Defaults to
+the global environment, matching earlier versions of bitUtils.}
+
+\item{assign}{Logical; assign each table in \code{envir}? Defaults to \code{TRUE}.}
+
+\item{encoding}{Encoding passed to \code{\link[data.table:fread]{data.table::fread()}}. Use \code{"UTF-8"} or
+\code{"unknown"} (the default). Korean Windows files that still look wrong after
+loading can be repaired with \code{\link[=bit_cp949]{bit_cp949()}}.}
+
+\item{quiet}{Logical; if \code{TRUE}, do not echo a copy-pasteable \code{fread()} line.}
+
+\item{sep}{Field separator passed to \code{\link[data.table:fread]{data.table::fread()}}. Defaults to tab.}
+
+\item{quote}{Quoting characters. Defaults to \code{""} so embedded quotes are
+left as-is, which is typical for Korean TSV exports.}
+
+\item{...}{Additional arguments forwarded to \code{\link[data.table:fread]{data.table::fread()}}.}
 }
 \value{
-NULL. This function is called for its side effect of loading a data frame into the global environment.
+A data frame if one file is loaded, otherwise a named list of data
+frames. Returned invisibly.
 }
 \description{
-This function allows the user to choose a TXT file from their file system and
-then loads that file into a data frame in the global environment.
+Choose one or more TXT files interactively, or pass paths directly, and load
+them with \code{\link[data.table:fread]{data.table::fread()}} using tab separators by default.
+}
+\examples{
+\dontrun{
+bit_txt()
+df <- bit_txt("data.txt")
+}
 }

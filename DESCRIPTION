@@ -1,16 +1,29 @@
 Package: bitUtils
 Type: Package
 Title: Utility Functions for Data Loading
-Version: 0.1.2
-Author: SHIN Jong-Hwa
-Maintainer: The package maintainer <shin.jonghwa@modernity.or.kr>
-Description: This package provides utility functions for loading and handling data.
-    It currently includes the functions for interactive selection and loading of .csv, .txt files.
-License: GPL-3
+Version: 0.2.1
+Authors@R: person(given = "Jong-Hwa",
+           family = "Shin",
+           role = c("aut", "cre"),
+           email = "shin.jonghwa@modernity.or.kr")
+Author: Jong-Hwa Shin [aut, cre]
+Maintainer: Jong-Hwa Shin <shin.jonghwa@modernity.or.kr>
+Description: Interactive and scriptable helpers for loading CSV and
+    tab-delimited files with 'data.table', converting Korean Windows
+    encodings, and choosing a working directory. File dialogs remain the
+    default; paths can also be supplied directly so the same functions work
+    in scripts and tests.
+License: GPL-3 + file LICENSE
+URL: https://github.com/sens5900r/bitUtils
+BugReports: https://github.com/sens5900r/bitUtils/issues
 Encoding: UTF-8
-LazyData: true
+Depends: R (>= 4.1.0)
 Imports:
     tcltk,
-    data.table,
-    gWidgets2
-RoxygenNote: 7.2.2
+    data.table
+Suggests:
+    gWidgets2,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2

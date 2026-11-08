@@ -2,40 +2,28 @@
 % Please edit documentation in R/bit_editor.R
 \name{bit_editor}
 \alias{bit_editor}
-\title{bit_editor: A simple text editor with syntax highlighting and scripting capabilities}
+\title{A simple Tcl/Tk script editor}
 \usage{
 bit_editor()
 }
 \value{
-A tktoplevel widget that acts as a text editor.
+A \code{tktoplevel} widget. The function is called for its side effect.
 }
 \description{
-This function creates a Tcl/Tk text editor with basic syntax highlighting,
-scripting capabilities, load/save functionality, and a scrollbar.
+Open a small editor with load/save, Run, and basic R keyword highlighting.
+Code is evaluated in the global environment, so objects created with
+\code{\link[=bit_csv]{bit_csv()}} remain visible to scripts you run from the window.
 }
 \details{
-This function utilizes several nested functions to achieve its functionality:
-1. `save`: Saves the current content of the text box to a file.
-2. `load`: Loads the content of a file into the text box.
-3. `run`: Executes the current content of the text box as R code.
+The File menu loads and saves the buffer. Run parses the buffer and
+evaluates it in \code{.GlobalEnv}. Highlighting marks R reserved words; it does
+not parse comments or string literals, so a keyword inside a comment may
+still be coloured.
 
-The text editor supports basic syntax highlighting. It highlights reserved words
-in R programming with a blue color. It also has a scrollbar to navigate through
-large amounts of text and supports text wrapping.
-
-The editor also features a menu bar with options to load a file, save the current
-content to a file, and execute the current content as R code.
-}
-\note{
-The syntax highlighting feature is quite rudimentary and highlights
-reserved words even if they are part of comments or string literals.
+Keyboard shortcuts: Ctrl+O load, Ctrl+S save, Ctrl+R run.
 }
 \examples{
 \dontrun{
 bit_editor()
 }
-
-}
-\seealso{
-\code{\link{tktext}}, \code{\link{tkscrollbar}}, \code{\link{tkmenu}}
 }

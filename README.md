@@ -1,47 +1,68 @@
 # bitUtils
 
-Utility Functions for Data Loading
+Utility functions for loading and handling tabular data in R.
 
-## Description
-
-`bitUtils` is an R package that provides utility functions for loading and handling data. It currently includes some functions for interactive selection and loading of .csv and .txt files.
+Version 0.2.1 keeps the original Tcl/Tk dialogs, and the same functions also
+accept file paths so they can be used in scripts and tests.
 
 ## Features
 
--   Interactive file selection using `tcltk`
--   Fast loading of data using `fread()` in `data.table`
--   Support for loading multiple files at once with `bit_csv_all()`, `bit_txt_all()`
--   Automatic removal of the Tk dialog box after file loading for a seamless workflow
--   `bit_editor()`, a Tcl/Tk text editor with scripting, and file management features.
+- Interactive file and directory selection with `tcltk`
+- Fast loading with `data.table::fread()`
+- Path-based loading for `bit_csv()`, `bit_txt()`, `bit_csv_all()`, `bit_txt_all()`
+- `bit_read()` chooses CSV or TXT from the file extension
+- Invisible return values in addition to assigning in an environment
+- `bit_cp949()` for Korean Windows encodings, with or without a GUI
+- `bit_setwd()` to choose or set the working directory
+- `bit_editor()`, a small Tcl/Tk script window (Load / Save / Run)
 
 ## Installation
 
-You can install the `bitUtils` package from GitHub using the `devtools` package:
+Install the development version from GitHub:
 
 ``` r
-devtools::install_github("sens5900r/bitUtils")
+# install.packages("remotes")
+remotes::install_github("sens5900r/bitUtils")
 ```
 
 ## Usage
 
-The `bit_csv()` function allows you to interactively choose a .csv file and load it into a data frame in the global environment.
+Interactive dialogs (unchanged from 0.1.x):
 
 ``` r
-bit_csv() # Show file dialog to select one or more .csv files
-bit_txt() # Show file dialog to select one or more .txt files
+library(bitUtils)
+
+bit_csv()      # choose one or more .csv files
+bit_txt()      # choose one or more .txt files
+bit_csv_all()  # choose a directory of .csv files
+bit_txt_all()  # choose a directory of .txt files
+bit_setwd()    # choose a working directory
 ```
 
-The `bit_csv_all()` function allows you to select a directory and load all the .csv files in that directory into separate data frames in the global environment.
+The same functions accept paths. Tables are assigned by sanitized file name
+and also returned, so either style works:
 
 ``` r
-bit_csv_all() # Show directory dialog to select a directory containing .csv files
-bit_txt_all() # Show directory dialog to select a directory containing .txt files
+df <- bit_csv("data.csv")
+bit_csv_all("C:/data")
+bit_read("data.txt")
+
+e <- new.env()
+bit_csv("data.csv", envir = e, quiet = TRUE)
+```
+
+Repair Korean Windows encodings after loading:
+
+``` r
+bit_cp949(df)
+bit_cp949("df")   # convert an object already in the global environment
+# bit_cp949()     # interactive chooser (needs gWidgets2)
 ```
 
 ## License
 
-This package is licensed under the GPL-3 license.
+GPL-3
 
 ## Contact
 
-For any questions or feedback, please contact the package maintainer at [shin.jonghwa\@modernity.or.kr](mailto:shin.jonghwa@modernity.or.kr).
+Maintainer: SHIN Jong-Hwa, [shin.jonghwa@modernity.or.kr](mailto:shin.jonghwa@modernity.or.kr)

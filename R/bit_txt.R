@@ -1,32 +1,41 @@
-#' @title Load a TXT file using a dialog
+#' Load tab-delimited TXT files
 #'
-#' @description This function allows the user to choose a TXT file from their file system and
-#' then loads that file into a data frame in the global environment.
+#' Choose one or more TXT files interactively, or pass paths directly, and load
+#' them with [data.table::fread()] using tab separators by default.
 #'
-#' @param file A character string specifying the path to the TXT file to load.
-#'   If NULL (the default), a file dialog will be shown.
+#' @inheritParams bit_csv
+#' @param sep Field separator passed to [data.table::fread()]. Defaults to tab.
+#' @param quote Quoting characters. Defaults to `""` so embedded quotes are
+#'   left as-is, which is typical for Korean TSV exports.
 #'
-#' @return NULL. This function is called for its side effect of loading a data frame into the global environment.
+#' @return A data frame if one file is loaded, otherwise a named list of data
+#'   frames. Returned invisibly.
+#'
+#' @examples
+#' \dontrun{
+#' bit_txt()
+#' df <- bit_txt("data.txt")
+#' }
 #'
 #' @export
-bit_txt <- function(file = NULL) {
-  if (is.null(file)) {
-    filenames <- tcltk::tk_choose.files(filters = matrix(c("TXT files", ".txt"), ncol = 2), caption = gettext("Choose .TXT files"))
-    if (length(filenames) == 0) {
-      stop(gettext("No file was selected."))
-    }
-  } else {
-    if (!file.exists(file)) {
-      stop(gettextf("The file %s does not exist.", file))
-    }
-    filenames <- file
-  }
-  for (file in filenames) {
-    data <- data.table::fread(file, sep = "\t", quote = "", data.table = FALSE)
-    name <- tools::file_path_sans_ext(basename(file))
-    assign(name, data, envir = .GlobalEnv)
-
-    # Print the object name and the file name
-    cat(sprintf("%s <- data.table::fread('%s', sep = '\\t', quote = '', data.table=FALSE)\n", name, file))
-  }
+bit_txt <- function(file = NULL,
+                    envir = .GlobalEnv,
+                    assign = TRUE,
+                    encoding = "unknown",
+                    quiet = FALSE,
+                    sep = "\t",
+                    quote = "",
+                    ...) {
+  files <- bit_resolve_files(
+    file = file,
+    filters = matrix(c("TXT files", ".txt", "All files", "*"), ncol = 2),
+    caption = gettext("Choose .TXT files")
+  )
+  bit_load_files(
+    files = files,
+    envir = envir,
+    do_assign = assign,
+    quiet = quiet,
+    fread_args = list(sep = sep, quote = quote, encoding = encoding, ...)
+  )
 }

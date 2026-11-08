@@ -2,32 +2,36 @@
 % Please edit documentation in R/bit_cp949.R
 \name{bit_cp949}
 \alias{bit_cp949}
-\title{Convert Encoding of Dataframe from CP949 to UTF-8}
+\title{Convert CP949 (or another encoding) to UTF-8}
 \usage{
-bit_cp949()
+bit_cp949(x = NULL, from = "cp949", to = "utf-8", envir = .GlobalEnv)
+}
+\arguments{
+\item{x}{A data frame, the name of a data frame in \code{envir}, or \code{NULL} to
+choose interactively.}
+
+\item{from}{Source encoding. Defaults to \code{"cp949"} for Korean Windows files.}
+
+\item{to}{Target encoding. Defaults to \code{"utf-8"}.}
+
+\item{envir}{Environment used when \code{x} is a name, and when the GUI rewrites
+the chosen object. Defaults to the global environment.}
 }
 \value{
-This function returns no value. It alters the chosen dataframe in the global environment in-place.
+The converted data frame, invisibly. When \code{x} is a name or chosen in
+the GUI, the object in \code{envir} is replaced as well.
 }
 \description{
-This function changes the encoding of the character columns in a dataframe from CP949 to UTF-8.
-}
-\details{
-The function provides a GUI for the user to select a dataframe from the global environment. It then changes the encoding of character columns and column names of the chosen dataframe from CP949 to UTF-8.
-}
-\note{
-This function requires the gWidgets2 and data.table packages.
+Convert character columns and column names of a data frame. Pass a data
+frame or the name of an object; if \code{x} is omitted, a GUI lists data frames
+in the global environment.
 }
 \examples{
+df <- data.frame(a = "x", stringsAsFactors = FALSE)
+identical(bit_cp949(df, from = "UTF-8", to = "UTF-8")$a, "x")
+
 \dontrun{
- # Generate a sample dataframe
- df <- data.frame(a = c("가", "나"), b = c("다", "라"))
- Encoding(df$a) <- Encoding(df$b) <- "CP949"
- assign("df", df, envir = .GlobalEnv)
- # Run the function
- bit_cp949()
+bit_cp949()
+bit_cp949("df")
 }
-}
-\seealso{
-\code{\link[data.table]{data.table}}, \code{\link[gWidgets2]{gwindow}}
 }

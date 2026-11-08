@@ -1,9 +1,10 @@
-#' bit_editor: A simple text editor with syntax highlighting and scripting capabilities
+#' A simple Tcl/Tk script editor
 #'
-#' This function creates a Tcl/Tk text editor with basic syntax highlighting,
-#' scripting capabilities, load/save functionality, and a scrollbar.
+#' Open a small editor with load/save, Run, and basic R keyword highlighting.
+#' Code is evaluated in the global environment, so objects created with
+#' [bit_csv()] remain visible to scripts you run from the window.
 #'
-#' @return A tktoplevel widget that acts as a text editor.
+#' @return A `tktoplevel` widget. The function is called for its side effect.
 #'
 #' @examples
 #' \dontrun{
@@ -11,78 +12,116 @@
 #' }
 #'
 #' @details
-#' This function utilizes several nested functions to achieve its functionality:
-#' 1. `save`: Saves the current content of the text box to a file.
-#' 2. `load`: Loads the content of a file into the text box.
-#' 3. `run`: Executes the current content of the text box as R code.
+#' The File menu loads and saves the buffer. Run parses the buffer and
+#' evaluates it in `.GlobalEnv`. Highlighting marks R reserved words; it does
+#' not parse comments or string literals, so a keyword inside a comment may
+#' still be coloured.
 #'
-#' The text editor supports basic syntax highlighting. It highlights reserved words
-#' in R programming with a blue color. It also has a scrollbar to navigate through
-#' large amounts of text and supports text wrapping.
-#'
-#' The editor also features a menu bar with options to load a file, save the current
-#' content to a file, and execute the current content as R code.
-#'
-#' @seealso \code{\link{tktext}}, \code{\link{tkscrollbar}}, \code{\link{tkmenu}}
-#'
-#' @note The syntax highlighting feature is quite rudimentary and highlights
-#' reserved words even if they are part of comments or string literals.
-#'
-#' @import tcltk
+#' Keyboard shortcuts: Ctrl+O load, Ctrl+S save, Ctrl+R run.
 #'
 #' @export
 bit_editor <- function() {
   wfile <- ""
-  tt <- tktoplevel()
-  txt <- tktext(tt, height=20, width=100, wrap="none")
-  yscroll <- tkscrollbar(tt, command=function(...)tkyview(txt, ...))
-  xscroll <- tkscrollbar(tt, orient="horizontal", command=function(...)tkxview(txt, ...))
+  tt <- tcltk::tktoplevel()
+  tcltk::tkwm.title(tt, "bitUtils editor")
+  txt <- tcltk::tktext(tt, height = 20, width = 100, wrap = "none", undo = TRUE)
+  yscroll <- tcltk::tkscrollbar(tt, command = function(...) tcltk::tkyview(txt, ...))
+  xscroll <- tcltk::tkscrollbar(tt, orient = "horizontal", command = function(...) tcltk::tkxview(txt, ...))
 
-  tkgrid(txt, yscroll, sticky="nsew")
-  tkgrid(xscroll, sticky="ew")
+  tcltk::tkgrid(txt, yscroll, sticky = "nsew")
+  tcltk::tkgrid(xscroll, sticky = "ew")
+  tcltk::tkgrid.rowconfigure(tt, 0, weight = 1)
+  tcltk::tkgrid.columnconfigure(tt, 0, weight = 1)
+  tcltk::tkconfigure(
+    txt,
+    yscrollcommand = function(...) tcltk::tkset(yscroll, ...),
+    xscrollcommand = function(...) tcltk::tkset(xscroll, ...)
+  )
+  tcltk::tktag.configure(txt, "keyword", foreground = "#0033aa")
 
-  tkconfigure(txt, yscrollcommand=function(...)tkset(yscroll, ...), xscrollcommand=function(...)tkset(xscroll, ...))
+  keywords <- c(
+    "if", "else", "repeat", "while", "function", "for", "in", "next", "break",
+    "TRUE", "FALSE", "NULL", "Inf", "NaN", "NA", "NA_integer_", "NA_real_",
+    "NA_character_", "NA_complex_"
+  )
+
+  highlight <- function() {
+    tcltk::tktag.remove(txt, "keyword", "1.0", "end")
+    for (word in keywords) {
+      start <- "1.0"
+      pattern <- paste0("\\y", word, "\\y")
+      repeat {
+        pos <- tcltk::tclvalue(tcltk::tcl(txt, "search", "-regexp", "--", pattern, start, "end"))
+        if (!nzchar(pos)) {
+          break
+        }
+        end <- paste0(pos, "+", nchar(word), "c")
+        tcltk::tktag.add(txt, "keyword", pos, end)
+        start <- end
+      }
+    }
+  }
 
   save <- function() {
-    file <- tcl("tk_getSaveFile",
-                initialfile=tcl("file", "tail", wfile),
-                initialdir=tcl("file", "dirname", wfile))
-    if (!length(file)) return()
-    chn <- tcl("open", file, "w")
-    tcl("puts", chn, tkget(txt,"0.0","end"))
-    tcl("close", chn)
+    file <- tcltk::tclvalue(tcltk::tcl(
+      "tk_getSaveFile",
+      initialfile = tcltk::tcl("file", "tail", wfile),
+      initialdir = tcltk::tcl("file", "dirname", wfile)
+    ))
+    if (!nzchar(file)) {
+      return()
+    }
+    chn <- tcltk::tcl("open", file, "w")
+    on.exit(tcltk::tcl("close", chn), add = TRUE)
+    tcltk::tcl("puts", "-nonewline", chn, tcltk::tkget(txt, "1.0", "end-1c"))
     wfile <<- file
-    tcl("wm", "title", tt, file)
+    tcltk::tcl("wm", "title", tt, file)
   }
+
   load <- function() {
-    file <- tcl("tk_getOpenFile")
-    if (!length(file)) return()
-    chn <- tcl("open", file, "r")
-    tkinsert(txt, "0.0", tcl("read", chn))
-    tcl("close", chn)
+    file <- tcltk::tclvalue(tcltk::tcl("tk_getOpenFile"))
+    if (!nzchar(file)) {
+      return()
+    }
+    chn <- tcltk::tcl("open", file, "r")
+    on.exit(tcltk::tcl("close", chn), add = TRUE)
+    tcltk::tkdelete(txt, "1.0", "end")
+    tcltk::tkinsert(txt, "1.0", tcltk::tclvalue(tcltk::tcl("read", chn)))
     wfile <<- file
-    tcl("wm", "title", tt, file)
+    tcltk::tcl("wm", "title", tt, file)
+    highlight()
   }
+
   run <- function() {
-    code <- tclvalue(tkget(txt,"1.0","end"))
-    e <- try(parse(text = code))
-    if (inherits(e, "try-error")) {
-      tkmessageBox(message = "Syntax error", icon = "error")
+    highlight()
+    code <- tcltk::tclvalue(tcltk::tkget(txt, "1.0", "end-1c"))
+    parsed <- try(parse(text = code), silent = TRUE)
+    if (inherits(parsed, "try-error")) {
+      tcltk::tkmessageBox(message = "Syntax error", icon = "error")
       return()
     }
     cat("Executing from script window:", "-----", code, "result:", sep = "\n")
-    result <- eval(e)
+    result <- try(eval(parsed, envir = .GlobalEnv), silent = TRUE)
+    if (inherits(result, "try-error")) {
+      tcltk::tkmessageBox(message = as.character(result), icon = "error")
+      return()
+    }
     if (!is.null(result)) {
       print(result)
-    } else {
-      print("The code did not produce a result.")
     }
   }
-  topMenu <- tkmenu(tt)
-  tkconfigure(tt, menu=topMenu)
-  fileMenu <- tkmenu(topMenu, tearoff=FALSE)
-  tkadd(fileMenu, "command", label="Load", command=load)
-  tkadd(fileMenu, "command", label="Save", command=save)
-  tkadd(topMenu, "cascade", label="File", menu=fileMenu)
-  tkadd(topMenu, "command", label="Run", command=run)
+
+  tcltk::tkbind(txt, "<KeyRelease-Return>", function() highlight())
+  tcltk::tkbind(tt, "<Control-o>", function() load())
+  tcltk::tkbind(tt, "<Control-s>", function() save())
+  tcltk::tkbind(tt, "<Control-r>", function() run())
+
+  topMenu <- tcltk::tkmenu(tt)
+  tcltk::tkconfigure(tt, menu = topMenu)
+  fileMenu <- tcltk::tkmenu(topMenu, tearoff = FALSE)
+  tcltk::tkadd(fileMenu, "command", label = "Load", command = load, accelerator = "Ctrl+O")
+  tcltk::tkadd(fileMenu, "command", label = "Save", command = save, accelerator = "Ctrl+S")
+  tcltk::tkadd(topMenu, "cascade", label = "File", menu = fileMenu)
+  tcltk::tkadd(topMenu, "command", label = "Run", command = run)
+  invisible(tt)
 }

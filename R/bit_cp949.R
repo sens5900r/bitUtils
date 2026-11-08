@@ -1,84 +1,82 @@
-#' @title Convert Encoding of Dataframe from CP949 to UTF-8
+#' Convert CP949 (or another encoding) to UTF-8
 #'
-#' @description This function changes the encoding of the character columns in a dataframe from CP949 to UTF-8.
-#' @details The function provides a GUI for the user to select a dataframe from the global environment. It then changes the encoding of character columns and column names of the chosen dataframe from CP949 to UTF-8.
+#' Convert character columns and column names of a data frame. Pass a data
+#' frame or the name of an object; if `x` is omitted, a GUI lists data frames
+#' in the global environment.
 #'
-#' @usage bit_cp949()
+#' @param x A data frame, the name of a data frame in `envir`, or `NULL` to
+#'   choose interactively.
+#' @param from Source encoding. Defaults to `"cp949"` for Korean Windows files.
+#' @param to Target encoding. Defaults to `"utf-8"`.
+#' @param envir Environment used when `x` is a name, and when the GUI rewrites
+#'   the chosen object. Defaults to the global environment.
 #'
-#' @return This function returns no value. It alters the chosen dataframe in the global environment in-place.
-#'
-#' @note This function requires the gWidgets2 and data.table packages.
-#'
-#' @seealso \code{\link[data.table]{data.table}}, \code{\link[gWidgets2]{gwindow}}
-#'
-#' @export
+#' @return The converted data frame, invisibly. When `x` is a name or chosen in
+#'   the GUI, the object in `envir` is replaced as well.
 #'
 #' @examples
+#' df <- data.frame(a = "x", stringsAsFactors = FALSE)
+#' identical(bit_cp949(df, from = "UTF-8", to = "UTF-8")$a, "x")
+#'
 #' \dontrun{
-#'  # Generate a sample dataframe
-#'  df <- data.frame(a = c("가", "나"), b = c("다", "라"))
-#'  Encoding(df$a) <- Encoding(df$b) <- "CP949"
-#'  assign("df", df, envir = .GlobalEnv)
-#'  # Run the function
-#'  bit_cp949()
+#' bit_cp949()
+#' bit_cp949("df")
 #' }
-#' @import gWidgets2
-bit_cp949 <- function() {
-  # Check if the necessary packages are loaded
-  if (!("gWidgets2" %in% .packages(all.available = TRUE))) {
-    stop("gWidgets2 package is not loaded. Please install and load the package before running this function.")
-  }
-  if (!("data.table" %in% .packages(all.available = TRUE))) {
-    stop("data.table package is not loaded. Please install and load the package before running this function.")
+#'
+#' @export
+bit_cp949 <- function(x = NULL, from = "cp949", to = "utf-8", envir = .GlobalEnv) {
+  if (is.null(x)) {
+    return(bit_cp949_gui(from = from, to = to, envir = envir))
   }
 
-  # 현재 환경에 있는 모든 객체를 가져오기
-  all_objects <- ls(envir = .GlobalEnv)
+  if (is.character(x) && length(x) == 1L) {
+    if (!exists(x, envir = envir, inherits = FALSE)) {
+      stop(gettextf("Object '%s' was not found.", x), call. = FALSE)
+    }
+    df <- get(x, envir = envir, inherits = FALSE)
+    converted <- bit_convert_encoding(df, from = from, to = to)
+    assign(x, converted, envir = envir)
+    return(invisible(converted))
+  }
 
-  # 데이터 프레임만 추출
-  data_frames <- all_objects[sapply(all_objects, function(x) is.data.frame(get(x)))]
+  if (is.data.frame(x)) {
+    return(invisible(bit_convert_encoding(x, from = from, to = to)))
+  }
 
-  # 선택창 만들기
+  stop("`x` must be a data frame, a length-1 character name, or NULL.", call. = FALSE)
+}
+
+bit_cp949_gui <- function(from, to, envir) {
+  if (!requireNamespace("gWidgets2", quietly = TRUE)) {
+    stop("The gWidgets2 package is required for the interactive chooser. Pass a data frame instead.", call. = FALSE)
+  }
+  if (!bit_is_interactive()) {
+    stop("bit_cp949() needs a data frame (or name) in a non-interactive session.", call. = FALSE)
+  }
+
+  all_objects <- ls(envir = envir)
+  data_frames <- all_objects[vapply(all_objects, function(nm) is.data.frame(get(nm, envir = envir, inherits = FALSE)), logical(1L))]
+  if (length(data_frames) == 0L) {
+    stop("No data frames were found in the target environment.", call. = FALSE)
+  }
+
   win <- gWidgets2::gwindow("Choose a dataframe", width = 280)
   group <- gWidgets2::ggroup(cont = win, horizontal = FALSE)
-
-  # 메시지 추가
-  initial_msg <- gWidgets2::glabel("Click here to see the list of dataframes:", cont = group)
-
+  gWidgets2::glabel("Click here to see the list of dataframes:", cont = group)
   listbox <- gWidgets2::gcombobox(data_frames, cont = group, editable = FALSE)
 
-  # 선택한 데이터 프레임 이름 반환
-  gWidgets2::addHandlerChanged(listbox, handler = function(h,...) {
+  gWidgets2::addHandlerChanged(listbox, handler = function(h, ...) {
     dataframe_name <- gWidgets2::svalue(h$obj)
-    gWidgets2::gmessage(paste("You chose dataframe:", dataframe_name), parent = win)
-
-    # 선택한 데이터 프레임 가져오기
-    df <- get(dataframe_name)
-
-    # Convert to data.table
-    DT <- data.table::as.data.table(df)
-
-    # Convert encoding of character columns
-    for (col in names(DT)) {
-      if (is.character(DT[[col]])) {
-        data.table::set(DT, j = col, value = iconv(DT[[col]], from = "cp949", to = "utf-8"))
-      }
-    }
-
-    # Convert column names
-    data.table::setnames(DT, iconv(names(DT), from = "cp949", to = "utf-8"))
-
-    # Convert back to data.frame
-    df <- as.data.frame(DT)
-
-    # Assign converted data frame back to global environment
-    assign(dataframe_name, df, envir = .GlobalEnv)
-
-    gWidgets2::gmessage(paste("The encoding of dataframe", dataframe_name, "has been converted to UTF-8."), parent = win)
-
-    # Close the window
+    df <- get(dataframe_name, envir = envir, inherits = FALSE)
+    converted <- bit_convert_encoding(df, from = from, to = to)
+    assign(dataframe_name, converted, envir = envir)
+    gWidgets2::gmessage(
+      paste("The encoding of dataframe", dataframe_name, "has been converted to", to, "."),
+      parent = win
+    )
     gWidgets2::dispose(win)
   })
 
   gWidgets2::visible(win) <- TRUE
+  invisible(NULL)
 }

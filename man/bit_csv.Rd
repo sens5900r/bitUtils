@@ -2,18 +2,47 @@
 % Please edit documentation in R/bit_csv.R
 \name{bit_csv}
 \alias{bit_csv}
-\title{Load a CSV file using a dialog}
+\title{Load CSV files}
 \usage{
-bit_csv(file = NULL)
+bit_csv(
+  file = NULL,
+  envir = .GlobalEnv,
+  assign = TRUE,
+  encoding = "unknown",
+  quiet = FALSE,
+  ...
+)
 }
 \arguments{
-\item{file}{A character string specifying the path to the CSV file to load.
-If NULL (the default), a file dialog will be shown.}
+\item{file}{Character vector of file paths. If \code{NULL} (the default), a file
+dialog is shown.}
+
+\item{envir}{Environment in which to assign the loaded data. Defaults to
+the global environment, matching earlier versions of bitUtils.}
+
+\item{assign}{Logical; assign each table in \code{envir}? Defaults to \code{TRUE}.}
+
+\item{encoding}{Encoding passed to \code{\link[data.table:fread]{data.table::fread()}}. Use \code{"UTF-8"} or
+\code{"unknown"} (the default). Korean Windows files that still look wrong after
+loading can be repaired with \code{\link[=bit_cp949]{bit_cp949()}}.}
+
+\item{quiet}{Logical; if \code{TRUE}, do not echo a copy-pasteable \code{fread()} line.}
+
+\item{...}{Additional arguments forwarded to \code{\link[data.table:fread]{data.table::fread()}}.}
 }
 \value{
-NULL. This function is called for its side effect of loading a data frame into the global environment.
+A data frame if one file is loaded, otherwise a named list of data
+frames. Returned invisibly.
 }
 \description{
-This function allows the user to choose a CSV file from their file system and
-then loads that file into a data frame in the global environment.
+Choose one or more CSV files interactively, or pass paths directly, and load
+them with \code{\link[data.table:fread]{data.table::fread()}}. By default each table is assigned in
+\code{envir} using a sanitized file name, and the data is also returned invisibly
+so the same call works in scripts.
+}
+\examples{
+\dontrun{
+bit_csv()
+df <- bit_csv("data.csv")
+}
 }

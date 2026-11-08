@@ -4,12 +4,47 @@
 \alias{bit_csv_all}
 \title{Load all CSV files in a directory}
 \usage{
-bit_csv_all()
+bit_csv_all(
+  dir = NULL,
+  envir = .GlobalEnv,
+  assign = TRUE,
+  encoding = "unknown",
+  quiet = FALSE,
+  notify = FALSE,
+  ...
+)
+}
+\arguments{
+\item{dir}{Directory path. If \code{NULL} (the default), a directory dialog is
+shown.}
+
+\item{envir}{Environment in which to assign the loaded data. Defaults to
+the global environment, matching earlier versions of bitUtils.}
+
+\item{assign}{Logical; assign each table in \code{envir}? Defaults to \code{TRUE}.}
+
+\item{encoding}{Encoding passed to \code{\link[data.table:fread]{data.table::fread()}}. Use \code{"UTF-8"} or
+\code{"unknown"} (the default). Korean Windows files that still look wrong after
+loading can be repaired with \code{\link[=bit_cp949]{bit_cp949()}}.}
+
+\item{quiet}{Logical; if \code{TRUE}, do not echo a copy-pasteable \code{fread()} line.}
+
+\item{notify}{Logical; if \code{TRUE} and a GUI is available, show a completion
+message box. Defaults to \code{FALSE} so scripts are not blocked.}
+
+\item{...}{Additional arguments forwarded to \code{\link[data.table:fread]{data.table::fread()}}.}
 }
 \value{
-NULL. This function is called for its side effect of loading data frames into the global environment.
+A named list of data frames, or a single data frame if the directory
+contains one matching file. Returned invisibly.
 }
 \description{
-This function allows the user to choose a directory and loads all .csv files
-in that directory into separate data frames in the global environment.
+Choose a directory interactively, or pass one directly, and load every
+\code{.csv} file in that directory.
+}
+\examples{
+\dontrun{
+bit_csv_all()
+bit_csv_all("C:/data")
+}
 }
